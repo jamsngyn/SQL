@@ -1,0 +1,85 @@
+# Climate Conference Project
+
+## Database – https://www.db-fiddle.com/f/pxMci1sLL945KHKYvpe9W6/1
+
+## 1. List all VIPs and their associated hotel reservations, including VIPs who may not have made a reservation.
+
+SELECT vips.member_id,
+vips.first_name,
+vips.last_name,
+reservations.hotel
+FROM vips
+
+LEFT JOIN reservations
+ON vips.member_id = reservations.member_id;
+
+## 2. Find the names of VIPs who have RSVP’d for the welcome event.
+
+SELECT vips.member_id,
+vips.first_name,
+vips.last_name
+FROM vips
+
+INNER JOIN reservations
+ON vips.member_id = reservations.member_id
+
+WHERE reservations.welcome_rsvp = 1;
+
+## 3. Retrieve event names, attendee names, and their hotel names.
+
+SELECT events.event_name,
+vips.first_name, 
+vips.last_name, 
+hotels.hotel_name
+FROM vips
+
+INNER JOIN events
+ON vips.event = events.event_id
+
+LEFT JOIN reservations
+ON vips.member_id = reservations.member_id
+
+LEFT JOIN hotels
+ON reservations.hotel = hotels.hotel_id;
+
+## 4. Find VIPs who provide feedback to others and the corresponding VIPs who receive their feedback.
+
+SELECT provider.first_name as Feedback_Provider,
+receiver.first_name as Feedback_Receiver
+FROM vips AS provider 
+
+JOIN vips AS receiver
+ON provider.provides_feedback_to = receiver.member_id;
+
+## 5. Find VIPs staying at the hotel with the most reservations.
+
+SELECT vips.member_id,
+vips.first_name,
+vips.last_name,
+hotels.hotel_name
+FROM vips
+
+JOIN reservations 
+ON vips.member_id = reservations.member_id
+
+JOIN hotels
+ON reservations.hotel = hotels.hotel_id
+
+WHERE reservations.hotel = (SELECT hotel
+                            FROM reservations
+                            GROUP BY hotel
+                            ORDER BY COUNT (*) DESC
+                            LIMIT 1);
+
+## 6. Get a list of all government-affiliated VIPs who have RSVP’d for dinner.
+
+SELECT vips.first_name,
+vips.last_name,
+vips.association
+FROM vips
+
+JOIN reservations 
+ON vips.member_id = reservations.member_id
+
+WHERE vips.assoc_type = 'government' 
+AND reservations.dinner_rsvp = 1;
